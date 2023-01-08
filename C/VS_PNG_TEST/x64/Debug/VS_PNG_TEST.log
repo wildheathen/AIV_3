@@ -1,0 +1,4 @@
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(500,5): warning MSB8004: la directory Output non termina con una barra finale. Nell'istanza della compilazione verrà aggiunta la barra poiché è necessaria per consentire la corretta valutazione della directory Output.
+C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(514,5): warning MSB8028: la directory intermedia (x64\Debug\) contiene file condivisi da un altro progetto (VS_PNG_TEST.vcxproj). Tale condizione può comportare un comportamento di pulizia e ricompilazione non corretto.
+  LINK : C:\Users\david\Documents\AIV_3\C\VS_PNG_TEST\x64\Debug\bin\VS_PNG.exe non trovato o non compilato dall'ultimo collegamento incrementale; verrà eseguito il collegamento completo
+  VS_PNG_TEST.vcxproj -> C:\Users\david\Documents\AIV_3\C\VS_PNG_TEST\x64\Debug\bin\VS_PNG.exe
