@@ -1,2 +1,7 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(503,5): warning MSB8004: la directory Output non termina con una barra finale. Nell'istanza della compilazione verrà aggiunta la barra poiché è necessaria per consentire la corretta valutazione della directory Output.
+  Microsoft (R) C/C++ Optimizing Compiler versione 19.34.31937 per x64
+  Copyright (C) Microsoft Corporation. Tutti i diritti  sono riservati.
+  cl /c /IC:\Users\david\Documents\AIV_3\C\VS_BOMBERMAN\Bomberman\include\header\SDL /IC:\Users\david\Documents\AIV_3\C\VS_BOMBERMAN\Bomberman\include\header /ZI /JMC /W3 /WX- /diagnostics:column /sdl /Od /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /permissive- /Fo"x64\Debug\\" /Fd"x64\Debug\vc143.pdb" /external:W3 /Gd /TC /FC /errorReport:prompt TCP_Server.c
+  TCP_Server.c
+C:\Users\david\Documents\AIV_3\C\VS_BOMBERMAN\Bomberman\TCP_Server.c(82,40): warning C4267: 'funzione': conversione da 'size_t' a 'int'. Possibile perdita di dati.
   Bomberman.vcxproj -> C:\Users\david\Documents\AIV_3\C\VS_BOMBERMAN\x64\Debug\bin\Bomberman.exe

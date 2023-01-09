@@ -51,22 +51,41 @@ void start_server(int port) {
 }
 
 void receive_messages(SOCKET server_sock, SOCKET client_sock) {
-    char buffer[1024];
+    while (1) 
+    {
 
-    // Receive data from the client
-    int recv_size;
-    if ((recv_size = recv(client_sock, buffer, 1024, 0)) == SOCKET_ERROR) {
-        puts("recv failed");
-        close_server(server_sock, client_sock);
-        return;
+        char buffer[1024];
+        // Clear the buffer by filling null, it might have previously received data
+        memset(buffer, '\0', sizeof(buffer));
+        // Receive data from the client
+        int recv_size;
+
+
+        // Try to receive some data, this is a blocking call
+        if ((recv_size = recv(client_sock, buffer, 1024, 0)) == SOCKET_ERROR) {
+            puts("recv failed");
+            return;
+        }
+
+        buffer[recv_size] = '\0';
+        printf("Received message from client: %s\n", buffer);
+
+        // Check if the client has sent the "exit" message
+        if (strcmp(buffer, "exit\n") == 0) 
+        {
+            close_server(server_sock, client_sock);
+            break;
+        }
+
+        // Send a reply to the client
+        char server_message[1024] = "ACK";
+	    send(client_sock, server_message, strlen(server_message), 0);
     }
-
-    // Add a NULL terminating character to make it a proper string before printing
-    buffer[recv_size] = '\0';
-    printf("Received message from client: %s\n", buffer);
 }
 
-void close_server(SOCKET server_sock, SOCKET client_sock) {
+void close_server(SOCKET server_sock, SOCKET client_sock)
+{
+    //NOTIFICARE IL CLIENT CHE E' STATA CHIUSA LA CONNESSIONE
     closesocket(client_sock);
     closesocket(server_sock);
     WSACleanup();

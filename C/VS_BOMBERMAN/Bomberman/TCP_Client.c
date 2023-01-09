@@ -72,6 +72,8 @@ void start_client(char* ip, int port) {
         printf("Enter message : ");
         fgets(message, 1024, stdin);
 
+
+
         // Send some data
         if (send(sock, message, strlen(message), 0) < 0) {
             puts("Send failed");
