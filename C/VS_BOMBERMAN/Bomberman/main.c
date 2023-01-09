@@ -1,7 +1,10 @@
+
 #include "TCP_Client.h"
 #include "TCP_Server.h"
 #include <stdio.h>
 #include <string.h>
+
+#pragma comment(lib, "ws2_32.lib")
 
 int main(int argc, char* argv[]) {
     if (argc < 3) {
