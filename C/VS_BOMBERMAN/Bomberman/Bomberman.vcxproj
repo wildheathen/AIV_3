@@ -134,10 +134,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.c" />
+    <ClCompile Include="TCP_Client.c" />
+    <ClCompile Include="TCP_Server.c" />
+    <ClCompile Include="main.bak" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\header\bomberman.h" />
     <ClInclude Include="include\header\stb_image.h" />
+    <ClInclude Include="include\header\TCP_Client.h" />
+    <ClInclude Include="include\header\TCP_Server.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

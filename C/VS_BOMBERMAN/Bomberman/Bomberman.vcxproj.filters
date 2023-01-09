@@ -15,6 +15,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="main.bak">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="TCP_Server.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="TCP_Client.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
     <ClCompile Include="main.c">
       <Filter>File di origine</Filter>
     </ClCompile>
@@ -24,6 +33,12 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="include\header\stb_image.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="include\header\TCP_Server.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="include\header\TCP_Client.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>
