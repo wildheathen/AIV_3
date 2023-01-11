@@ -57,29 +57,54 @@ void receive_messages(SOCKET server_sock, SOCKET client_sock) {
         char buffer[1024];
         // Clear the buffer by filling null, it might have previously received data
         memset(buffer, '\0', sizeof(buffer));
-        // Receive data from the client
-        int recv_size;
 
+        
+        // Impostare la modalità di funzionamento non bloccante per il socket
+        u_long nonBlockingMode = 1;
+        ioctlsocket(client_sock, FIONBIO, &nonBlockingMode);
 
-        // Try to receive some data, this is a blocking call
-        if ((recv_size = recv(client_sock, buffer, 1024, 0)) == SOCKET_ERROR) {
-            puts("recv failed");
-            return;
-        }
-
-        buffer[recv_size] = '\0';
-        printf("Received message from client: %s\n", buffer);
-
-        // Check if the client has sent the "exit" message
-        if (strcmp(buffer, "exit\n") == 0) 
+        
+        // Try to receive some data
+        int receive = recv(client_sock, buffer, sizeof(buffer), 0);
+        if (receive == SOCKET_ERROR) //-1
         {
-            close_server(server_sock, client_sock);
-            break;
+            int error = WSAGetLastError();
+            if (error == WSAEWOULDBLOCK)
+            {
+                // Il socket è in modalità non bloccante e non ci sono dati da ricevere
+                // wchar_t *s = NULL;
+                // FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
+                //                NULL, WSAGetLastError(),
+                //                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                //                (LPWSTR)&s, 0, NULL);
+                // fprintf(stderr, "%S\n", s);
+                // LocalFree(s);
+            }
+            
+            
+        }
+        else if (receive == 0) //è stata chiusa la connessione 
+        {
+            
+        }
+        else // Dati ricevuti
+        {
+            buffer[receive] = '\0';
+            printf("Received message from client: %s\n", buffer);
+
+            // Check if the client has sent the "exit" message
+            if (strcmp(buffer, "exit\n") == 0) 
+            {
+                close_server(server_sock, client_sock);
+                break;
+            }
+
+            // Send a reply to the client
+            char server_message[1024] = "ACK";
+            send(client_sock, server_message, strlen(server_message), 0);   
         }
 
-        // Send a reply to the client
-        char server_message[1024] = "ACK";
-	    send(client_sock, server_message, strlen(server_message), 0);
+        
     }
 }
 

@@ -8,7 +8,7 @@
 #include <tchar.h> // per _towchar
 
 // Converte la stringa di caratteri a char* in una stringa di caratteri a wchar_t*
-// e la copia in dest, che può contenere al massimo dest_size elementi di wchar_t
+// e la copia in dest, che puo' contenere al massimo dest_size elementi di wchar_t
 size_t char_to_wchar(wchar_t* dest, const char* src, size_t dest_size) {
     errno_t err = mbstowcs_s(&dest_size, dest, dest_size, src, _TRUNCATE);
     if (err != 0) {
