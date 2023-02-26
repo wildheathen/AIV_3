@@ -1,3 +1,6 @@
+#ifndef BOMBERMAN_H
+#define BOMBERMAN_H
+
 typedef struct vec2
 {
 	int x;
@@ -58,3 +61,4 @@ typedef struct game_mode
 {
 	unsigned int timer;
 } game_mode_t;
+#endif

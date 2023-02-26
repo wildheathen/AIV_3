@@ -1,6 +1,6 @@
 #include "TCP_Server.h"
-#include <winsock2.h>
-#include <stdio.h>
+
+#define SOCKET_BUFFER_SIZE 1024
 
 void start_server(int port) {
     WSADATA wsa;
@@ -40,7 +40,7 @@ void start_server(int port) {
     // Listen to incoming connections
     listen(server_sock, 3);
 
-    // Accept and incoming connection
+    // Accept incoming connection
     puts("Waiting for incoming connections...");
 
     c = sizeof(struct sockaddr_in);
@@ -53,8 +53,8 @@ void start_server(int port) {
 void receive_messages(SOCKET server_sock, SOCKET client_sock) {
     while (1) 
     {
-
-        char buffer[1024];
+        
+        char buffer[SOCKET_BUFFER_SIZE]; 
         // Clear the buffer by filling null, it might have previously received data
         memset(buffer, '\0', sizeof(buffer));
 
@@ -101,7 +101,12 @@ void receive_messages(SOCKET server_sock, SOCKET client_sock) {
 
             // Send a reply to the client
             char server_message[1024] = "ACK";
-            send(client_sock, server_message, strlen(server_message), 0);   
+            send(client_sock, server_message, strlen(server_message), 0);
+
+
+
+            //IMPLEMENTAZIONE MOVIMENTO
+            //sscanf()
         }
 
         
