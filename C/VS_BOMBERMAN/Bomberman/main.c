@@ -8,6 +8,7 @@
 #include "Server.h"
 #include <stdio.h>
 #include <string.h>
+#include <bomberman.h>
 
 // #pragma comment(lib, "ws2_32.lib")
 
@@ -27,15 +28,7 @@ static void bomberman_map_init(cell_t* map)
 	//TODO
 }
 
-static void bomberman_player_init(player_t* player)
-{
-	player->position.x = 0;
-	player->position.y = 0;
-	player->number_of_lifes = 1;
-	player->number_of_bombs = 1;
-	player->score = 0;
-	player->speed = 1;
-}
+
 
 int bomberman_graphics_init(SDL_Window** window, SDL_Renderer** renderer, SDL_Texture** texture)
 {
@@ -112,6 +105,9 @@ void sdl_main()
 	bomberman_map_init(map);
 	bomberman_player_init(&player);
 
+	//start_client("127.0.0.1", 8888, &player);
+
+	
 	if (bomberman_graphics_init(&window, &renderer, &texture))
 		return; //-1
 
@@ -164,6 +160,7 @@ int connection_mgr(int argc, char* argv[])
 	}
 	else if (strcmp(mode, "client") == 0)
 	{
+		//sdl_main();
 		start_client("127.0.0.1", port, &player);
 	}
 	else
@@ -177,6 +174,7 @@ int connection_mgr(int argc, char* argv[])
 /*####################################################*/
 int main(int argc, char* argv[])
 {
+	
 	//AVVIO VALIDO
     if (connection_mgr(argc, argv) != 1) 
     {

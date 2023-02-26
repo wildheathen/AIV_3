@@ -1,6 +1,7 @@
 #include "TCP_Client.h"
-
 #include "Server.h"
+#include "bomberman.h"
+
 # define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 int state = 0, random_value;
@@ -26,12 +27,11 @@ void start_client(char* ip, int port, player_t* player) {
     WSADATA wsa;
     SOCKET sock;
     wchar_t wide_ip[INET_ADDRSTRLEN];
-    // SHA256_CTX ctx;
-    //
-    // char server_reply[2000];
-    // wchar_t wide_ip[INET_ADDRSTRLEN];
+    
+    //riferimento al player?
+    vec2_t position = {0,0};
 
-    int buffer[MAX_PACKET_SIZE];
+    char buffer[MAX_PACKET_SIZE];
     printf( "type w, a, s, or d to move, q to quit\n" );
     int is_running = 1;
     
@@ -68,58 +68,49 @@ void start_client(char* ip, int port, player_t* player) {
     server_address.sin_port = htons(port);
     //server_address.sin_addr.S_un.S_addr = inet_addr(ip);
     #pragma endregion Winsock_init_and_connection
-
-    char message[MAX_PACKET_SIZE];
-    gets_s( message, MAX_PACKET_SIZE );
-
-    int flags = 0;
-    if( sendto( sock, message, strlen( message ), flags, (SOCKADDR*)&server_address, sizeof( server_address ) ) == SOCKET_ERROR )
-    {
-        printf( "sendto failed: %d", WSAGetLastError() );
-        return;
-    }
-    
+       
     // Keep communicating with server
-    // while(is_running)
-    // {
-    //     scanf_s( "\n%c", &buffer[0], 1 );
-    //
-    //     // send to server
-    //     int buffer_length = 1;
-    //     int flags = 0;
-    //     SOCKADDR* to = (SOCKADDR*)&server_address;
-    //     int to_length = sizeof(server_address);
-    //     if( sendto( sock, buffer, buffer_length, flags, to, to_length ) == SOCKET_ERROR )
-    //     {
-    //         printf( "sendto failed: %d", WSAGetLastError() );
-    //         return;
-    //     }
-    //
-    //     // wait for reply
-    //     flags = 0;
-    //     SOCKADDR_IN from;
-    //     int from_size = sizeof( from );
-    //     int bytes_received = recvfrom( sock, buffer, 512, flags, (SOCKADDR*)&from, &from_size );
-    //
-    //     if( bytes_received == SOCKET_ERROR )
-    //     {
-    //         printf( "recvfrom returned SOCKET_ERROR, WSAGetLastError() %d", WSAGetLastError() );
-    //         break;
-    //     }
-    //
-    //     // grab data from packet
-    //     int read_index = 0;
-    //
-    //     memcpy( &player->position.x, &buffer[read_index], sizeof( player->position.x ) );
-    //     read_index += sizeof( player->position.x );
-    //
-    //     memcpy( &player->position.y, &buffer[read_index], sizeof( player->position.y ) );
-    //     read_index += sizeof( player->position.y );
-    //
-    //     memcpy( &is_running, &buffer[read_index], sizeof( is_running ) );
-    //
-    //     printf( "x:%d, y:%d, is_running:%d\n", player->position.x, player->position.y, is_running );
-    // }
+    while(is_running)
+    {
+        scanf_s( "\n%c", &buffer[0], 1 );
+    
+        // send to server
+        int buffer_length = 1;
+        int flags = 0;
+        SOCKADDR* to = (SOCKADDR*)&server_address;
+        int to_length = sizeof(server_address);
+        if( sendto( sock, buffer, buffer_length, flags, to, to_length ) == SOCKET_ERROR )
+        {
+            printf( "sendto failed: %d", WSAGetLastError() );
+            return;
+        }
+    
+        // wait for reply
+        flags = 0;
+        SOCKADDR_IN from;
+        int from_size = sizeof( from );
+        int bytes_received = recvfrom( sock, buffer, MAX_PACKET_SIZE, flags, (SOCKADDR*)&from, &from_size );
+    
+        if( bytes_received == SOCKET_ERROR )
+        {
+            printf( "recvfrom returned SOCKET_ERROR, WSAGetLastError() %d", WSAGetLastError() );
+            break;
+        }
+    
+        // grab data from packet
+        int read_index = 0;
+    
+        memcpy( &position.x, &buffer[read_index], sizeof( position.x ) );
+        read_index += sizeof( position.x );
+    
+        memcpy( &position.y, &buffer[read_index], sizeof( position.y ) );
+        read_index += sizeof( position.y );
+    
+        memcpy( &is_running, &buffer[read_index], sizeof( is_running ) );
+
+        //lato client è errato???
+        printf( "x:%d, y:%d, is_running:%d\n", position.x, position.y, is_running );
+    }
     
     /* ADVANCED CONNECTION
     while (1)
@@ -218,7 +209,7 @@ void start_client(char* ip, int port, player_t* player) {
     }
     */
     
-    closesocket(sock);
+    //closesocket(sock);
     WSACleanup();
 }
 

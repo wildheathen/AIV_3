@@ -1,20 +1,9 @@
 #ifndef BOMBERMAN_H
 #define BOMBERMAN_H
 
-typedef struct vec2
-{
-	int x;
-	int y;
-} vec2_t;
+#include "player.h"
 
-typedef struct player
-{
-	vec2_t position;
-	unsigned int number_of_lifes;
-	unsigned int number_of_bombs;
-	unsigned int score;
-	unsigned int speed;
-} player_t;
+
 
 typedef struct bomb
 {
