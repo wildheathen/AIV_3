@@ -9,8 +9,6 @@ char message[MAX_PACKET_SIZE];
 const char* player_name;
 struct sockaddr_in server_address;
 
-void ManagePacket(int rlen);
-
 
 // Converte la stringa di caratteri a char* in una stringa di caratteri a wchar_t*
 // e la copia in dest, che puo' contenere al massimo dest_size elementi di wchar_t
@@ -23,14 +21,16 @@ size_t char_to_wchar(wchar_t* dest, const char* src, size_t dest_size) {
     return dest_size;
 }
 
-void start_client(char* ip, int port, player_t* player) {
+void start_client(char* ip, int port, player_t* player)
+{
+    bomberman_player_init(player);
+    
     WSADATA wsa;
     SOCKET sock;
     wchar_t wide_ip[INET_ADDRSTRLEN];
     
-    //riferimento al player?
-    vec2_t position = {0,0};
-
+    unsigned short int state = 0;
+    
     char buffer[MAX_PACKET_SIZE];
     printf( "type w, a, s, or d to move, q to quit\n" );
     int is_running = 1;
@@ -68,214 +68,117 @@ void start_client(char* ip, int port, player_t* player) {
     server_address.sin_port = htons(port);
     //server_address.sin_addr.S_un.S_addr = inet_addr(ip);
     #pragma endregion Winsock_init_and_connection
-       
+    
+    
     // Keep communicating with server
     while(is_running)
     {
-        scanf_s( "\n%c", &buffer[0], 1 );
-    
-        // send to server
-        int buffer_length = 1;
-        int flags = 0;
-        SOCKADDR* to = (SOCKADDR*)&server_address;
-        int to_length = sizeof(server_address);
-        if( sendto( sock, buffer, 4, flags, to, to_length ) == SOCKET_ERROR )
+        // send the first "handshake"  
+        if (state == 0)
         {
-            printf( "sendto failed: %d", WSAGetLastError() );
-            return;
-        }
-    
-        // wait for reply
-        flags = 0;
-        SOCKADDR_IN from;
-        int from_size = sizeof( from ); //da mettere 4 per essere precisi
-        //TODO GESTIRE RICEZIONE IN BASE AL TIPO DI AZIONE
-        int bytes_received = recvfrom( sock, buffer, MAX_PACKET_SIZE, flags, (SOCKADDR*)&from, &from_size );
-    
-        if( bytes_received == SOCKET_ERROR )
-        {
-            printf( "recvfrom returned SOCKET_ERROR, WSAGetLastError() %d", WSAGetLastError() );
-            break;
-        }
-    
-        // grab data from packet
-        int read_index = 0;
-    
-        memcpy( &position.x, &buffer[read_index], sizeof( position.x ) );
-        read_index += sizeof( position.x );
-    
-        memcpy( &position.y, &buffer[read_index], sizeof( position.y ) );
-        read_index += sizeof( position.y );
-    
-        memcpy( &is_running, &buffer[read_index], sizeof( is_running ) );
+            
+            // send configuration
+            int buffer_length = 1;
+            int flags = 0;
+            SOCKADDR* to = (SOCKADDR*)&server_address;
+            int to_length = sizeof(server_address);
+            
+            buffer[0] = (unsigned char)Join;
+            
+            printf("Please choose a name (max 8 characters) ...\n");
+            scanf_s( "\n%s", &buffer[1], sizeof(player->name) );
+            
+            // send to server
+            if( sendto( sock, buffer, sizeof((unsigned short)Join)+sizeof(player->name), flags, to, to_length ) == SOCKET_ERROR )
+            {
+                printf( "sendto failed: %d", WSAGetLastError() );
+                return;
+            }
 
-        //lato client è errato???
-        printf( "x:%d, y:%d, is_running:%d\n", position.x, position.y, is_running );
-    }
-    
-    /* ADVANCED CONNECTION
-    while (1)
-    {
-        if(state == 0)
-        {
-            random_value = rand() % 100000;
-            memcpy(message, &random_value, 4);    
-            sendto(socket, message, 4, 0, (struct sockaddr*) &server, sizeof(server));
+            // receive configuration
+            flags = 0;
+            SOCKADDR_IN from;
+            int from_size = sizeof( from ); 
+            // wait for reply
+            int bytes_received = recvfrom( sock, buffer, MAX_PACKET_SIZE, flags, (SOCKADDR*)&from, &from_size );
+            if( bytes_received == SOCKET_ERROR )
+            {
+                printf( "recvfrom returned SOCKET_ERROR, WSAGetLastError() %d", WSAGetLastError() );
+                break;
+            }
+
+            if (buffer[0] == '1')
+            {
+                memcpy(&player->id, &buffer[2], sizeof(player->id));
+                printf("Connection accepted from server\nAssigned id is: %hu\n", player->id);
+            }
+            else
+            {
+                printf("Connection denied from server");    
+            }
 
             state = 1;
         }
-        else if (state == 1)
+        else if (state == 1) //input
         {
-            //struct sockaddr_in endPoint;
-            socklen_t endPointLength = sizeof(server);
-            int rlen = recvfrom(socket, message, 512, 0, (struct sockaddr*) &server, &endPointLength);
-            if (rlen == 4)
+            buffer[0] = (unsigned char)Input;
+            memcpy(&buffer[1], &player->id, sizeof(player->id));
+            scanf_s( "\n%c", &buffer[3], 1 );
+
+
+            // send configuration
+            int buffer_length = 4;
+            int flags = 0;
+            SOCKADDR* to = (SOCKADDR*)&server_address;
+            int to_length = sizeof(server_address);
+            // send to server
+            if( sendto( sock, buffer, buffer_length, flags, to, to_length ) == SOCKET_ERROR )
             {
-                int serverValue;
-                memcpy(&serverValue, message, 4);
-                
-                int totalChallenge = random_value + serverValue;
-                unsigned char challengeBytes[4];
-                memcpy(challengeBytes, &totalChallenge, 4);
-                unsigned char hashedChallenge[32];
-                memcpy(challengeBytes, 4, hashedChallenge);
-
-                
-
-                
-
-                unsigned char playerNameOriginalBytes[16];
-                memcpy(playerNameOriginalBytes, player_name, 16);
-                unsigned char playerNameBytes[8];
-                memcpy(playerNameBytes, playerNameOriginalBytes, 8);
-
-                unsigned char challengeAndName[32 + 8];
-                memcpy(challengeAndName, hashedChallenge, 32);
-                memcpy(challengeAndName + 32, playerNameBytes, 8);
-
-                sendto(socket, challengeAndName, 40, 0, (struct sockaddr*) &server, sizeof(server));
-                state = 2;
+                printf( "sendto failed: %d", WSAGetLastError() );
+                return;
             }
-        }
-        else if (state == 2)
-        {
-            // periodically send transform updates
-            unsigned int command = 0;
-            unsigned int id = 0;
-            // float x = transform.position.x;
-            // float z = transform.position.z;
-            // float yaw = transform.rotation.eulerAngles.y;
 
-            memcpy(message, &command, 4);
-            memcpy(message + 4, &id, 4);
-            // memcpy(message + 8, &x, 4);
-            // memcpy(message + 12, &z, 4);
-            // memcpy(message + 16, &yaw, 4);
-
-            sendto(socket, message, 20, 0, (struct sockaddr*) &server, sizeof(server));
-
-            struct sockaddr_in endPoint;
-            socklen_t endPointLength = sizeof(endPoint);
-            for (int i = 0; i < 500; i++) {
-                int rlen = recvfrom(socket, message, 512, 0, (struct sockaddr*) &endPoint, &endPointLength);
-                if (rlen >= 4) {
-                    ManagePacket(rlen);
-                }
+            // receive configuration
+            flags = 0;
+            SOCKADDR_IN from;
+            int from_size = sizeof( from ); 
+            // wait for reply
+            int bytes_received = recvfrom( sock, buffer, MAX_PACKET_SIZE, flags, (SOCKADDR*)&from, &from_size );
+            if( bytes_received == SOCKET_ERROR )
+            {
+                printf( "recvfrom returned SOCKET_ERROR, WSAGetLastError() %d", WSAGetLastError() );
+                break;
             }
-        }
-
-/////////////////////////////////////////////
-
-        
-        printf("Enter message : ");
-        fgets(message, 1024, stdin);
-
-
-
-        // Send some data
-        if (send(sock, message, strlen(message), 0) < 0) {
-            puts("Send failed");
-            return;
-        }
-
-        // Receive a reply from the server
-        int recv_size;
-        if ((recv_size = recv(sock, server_reply, 2000, 0)) == SOCKET_ERROR) {
-            puts("recv failed");
-            break;
-        }
-
-        server_reply[recv_size] = '\0';
-        printf("Server reply : %s\n", server_reply);
-    }
-    */
     
-    //closesocket(sock);
-    WSACleanup();
-}
+            // grab data from packet
+            int read_index = 0;
+            unsigned char status;
+            
+            memcpy( &status, &buffer[read_index], 1 );
+            read_index += 1;
 
-void ManagePacket(int rlen)
-{
-    int command = (int)((message[0] << 24) | (message[1] << 16) | (message[2] << 8) | message[3]);
-    if (command == 1) {
-        if (rlen != 28) {
-            /* TODO better to disconnect */
-            printf("unexpected message size for command 1");
-            return;
+            // TODO CONTROLLARE SE L'ID E' DEL CLIENT CORRENTE
+            
+            read_index = 3;
+            
+            if (status == '2' )
+            {
+                memcpy( &player->position.x, &buffer[3], sizeof( player->position.x ) );
+                read_index += sizeof( player->position.x );
+                
+                memcpy( &player->position.y, &buffer[7], sizeof( player->position.y ) );
+                read_index += sizeof( player->position.y );
+                
+                is_running =1;
+            
+                printf( "x:%f, y:%f\n", player->position.x, player->position.y);    
+            }
+                
         }
-
-        unsigned int playerId = (unsigned int)((message[4] << 24) | (message[5] << 16) | (message[6] << 8) | message[7]);
-        float playerX = *((float *)(message + 8));
-        float playerZ = *((float *)(message + 12));
-        float playerYaw = *((float *)(message + 16));
-
-    /* GameObject newPlayer = GameObject.Instantiate(playerPrefab); */
-    /* newPlayer.transform.position = new Vector3(playerX, 1, playerZ); */
-    /* newPlayer.transform.rotation = Quaternion.Euler(0, playerYaw, 0); */
-
-    /* string newPlayerName = Encoding.ASCII.GetString(message, 20, 8); */
-    /* newPlayer.name = newPlayerName; */
-
-    /* newPlayer.GetComponentInChildren<TextMesh>().text = newPlayerName; */
-
-    /* playersInGame.Add(playerId, newPlayer); */
-  } else if (command == 0) {
-    if (rlen != 20) {
-      /* TODO better to disconnect */
-      printf("unexpected message size for command 0");
-      return;
+        
     }
-
-      unsigned int playerId = (unsigned int)((message[4] << 24) | (message[5] << 16) | (message[6] << 8) | message[7]);
-      float playerX = *((float *)(message + 8));
-      float playerZ = *((float *)(message + 12));
-      float playerYaw = *((float *)(message + 16));
-
-    /* if (!playersInGame.ContainsKey(playerId)) */
-    /* { */
-    /*   Debug.Log("unknown player"); */
-    /*   return; */
-    /* } */
-
-    /* playersInGame[playerId].transform.position = new Vector3(playerX, 1, playerZ); */
-    /* playersInGame[playerId].transform.rotation = Quaternion.Euler(0, playerYaw, 0); */
-  } else if (command == 2) {
-      if (rlen != 8) {
-          /* TODO better to disconnect */
-          printf("unexpected message size for command 2");
-          return;
-      }
-
-      unsigned int playerId = (unsigned int)((message[4] << 24) | (message[5] << 16) | (message[6] << 8) | message[7]);
-
-    /* if (!playersInGame.ContainsKey(playerId)) */
-    /* { */
-    /*   Debug.Log("unknown player"); */
-    /*   return; */
-    /* } */
-
-    /* Destroy(playersInGame[playerId]); */
-    /* playersInGame.Remove(playerId); */
-  }
+    
+   // WSACleanup();
 }
+
 

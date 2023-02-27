@@ -2,8 +2,8 @@
 
 typedef struct vec2
 {
-    int x;
-    int y;
+    float x;
+    float y;
 } vec2_t;
 
 typedef struct player
@@ -13,12 +13,13 @@ typedef struct player
     unsigned int number_of_bombs;
     unsigned int score;
     unsigned int speed;
-
+    
     
     // struct sockaddr_in peer;
     // float transform[3];
     // uint32_t player_id;
-    // char name[8];
+    char name[8];
+    unsigned short id;
     // time_t last_packet_timestamp;
 } player_t;
 
@@ -30,4 +31,7 @@ static void bomberman_player_init(player_t* player)
     player->number_of_bombs = 1;
     player->score = 0;
     player->speed = 1;
+
+    player->name[8] = "\0";
+    player->id      = 0;
 }

@@ -17,7 +17,6 @@ int connection_mgr(int argc, char* argv[]);
 
 player_t player;
 
-
 static void bomberman_game_mode_init(game_mode_t* game_mode)
 {
 	game_mode->timer = 60;
@@ -27,8 +26,6 @@ static void bomberman_map_init(cell_t* map)
 {
 	//TODO
 }
-
-
 
 int bomberman_graphics_init(SDL_Window** window, SDL_Renderer** renderer, SDL_Texture** texture)
 {
@@ -139,6 +136,7 @@ void sdl_main()
 	}	
 }
 
+
 int connection_mgr(int argc, char* argv[])
 {
 	if (argc < 3) {
@@ -169,7 +167,6 @@ int connection_mgr(int argc, char* argv[])
 		return 1;
 	}    
 }
-
 
 /*####################################################*/
 int main(int argc, char* argv[])

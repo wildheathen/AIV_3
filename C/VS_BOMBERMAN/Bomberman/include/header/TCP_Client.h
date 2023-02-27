@@ -11,7 +11,8 @@
 #include <stdlib.h>
 #include <tchar.h> // per _towchar
 #include "sha256.h"
-#include "bomberman.h"
+#include "player.h"
+
 
 size_t char_to_wchar(wchar_t* dest, const char* src, size_t dest_size);
 void start_client(char* ip, int port, player_t* player);
