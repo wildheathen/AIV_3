@@ -79,7 +79,7 @@ void start_client(char* ip, int port, player_t* player) {
         int flags = 0;
         SOCKADDR* to = (SOCKADDR*)&server_address;
         int to_length = sizeof(server_address);
-        if( sendto( sock, buffer, buffer_length, flags, to, to_length ) == SOCKET_ERROR )
+        if( sendto( sock, buffer, 4, flags, to, to_length ) == SOCKET_ERROR )
         {
             printf( "sendto failed: %d", WSAGetLastError() );
             return;
@@ -88,7 +88,8 @@ void start_client(char* ip, int port, player_t* player) {
         // wait for reply
         flags = 0;
         SOCKADDR_IN from;
-        int from_size = sizeof( from );
+        int from_size = sizeof( from ); //da mettere 4 per essere precisi
+        //TODO GESTIRE RICEZIONE IN BASE AL TIPO DI AZIONE
         int bytes_received = recvfrom( sock, buffer, MAX_PACKET_SIZE, flags, (SOCKADDR*)&from, &from_size );
     
         if( bytes_received == SOCKET_ERROR )
